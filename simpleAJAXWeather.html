@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Yahoo Weather via AJAX</title>
+	<style type="text/css">
+		.textbox {
+			margin-top: 10px;
+		}
+	</style>
+	<script>
+		var requestObj = null;
+
+		function getWeather() {
+			requestObj = new XMLHttpRequest();
+			var zipcode = document.getElementById("zipField").value
+			var weatherURL = "http://web.stanford.edu/~psyoung/cgi-bin/a3.php?yws_path=" + encodeURIComponent("p=" + zipcode);
+			//console.log(weatherURL);
+			requestObj.addEventListener("load", processWeather, null);
+			requestObj.open('GET', weatherURL, true);
+			requestObj.send(null);
+		}
+		
+		function processWeather() {
+			var locationArrayElement = requestObj.responseXML.getElementsByTagName("yweather:location");
+				if (locationArrayElement.length == 0) {
+					locationArrayElement = requestObj.responseXML.getElementsByTagName("location");
+				}
+			//console.log(locationArrayElement);
+			var conditionArrayElement = requestObj.responseXML.getElementsByTagName("yweather:condition");
+				if (conditionArrayElement.length == 0) {
+					conditionArrayElement = requestObj.responseXML.getElementsByTagName("condition");
+				}
+			//console.log(conditionArrayElement);
+			var city = locationArrayElement[0].getAttribute("city");
+			var temperature = conditionArrayElement[0].getAttribute("temp");
+			var description = conditionArrayElement[0].getAttribute("text");
+			//console.log(city);
+			//console.log(temperature);
+			//console.log(description);
+			var displayBox = document.getElementById("results");
+			//console.log(displayBox);
+			displayBox.value = displayBox.value + (city + ": " + temperature + ", " + description + "\n");
+		}
+
+		function clearTextArea() {
+			var displayBox = document.getElementById("results");
+			//var display = displayBox.value; *don't create a new variable like this, it makes a copy of displayBox
+			//display = "";
+			displayBox.value = "";
+			//console.log(displayBox);
+		}
+
+	</script>
+</head>
+<body>
+	<h1>Yahoo Weather via AJAX</h1>
+
+	<div>
+		<label>Enter ZIP Code:</label><input type="text" id="zipField" value="">
+		
+		<input type="button" value="Get Weather" id="getWeatherButton" onclick="getWeather();">
+		<input type="button" value="Clear" id="clearButton" onclick="clearTextArea();">
+	</div>
+
+	<div class="textbox">
+		<textarea rows="10" cols="40" id="results"></textarea>
+	</div>
+
+</body>
+</html>
